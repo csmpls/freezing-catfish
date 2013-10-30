@@ -1,8 +1,8 @@
 
   
   int timeout = 5000; //how long in ms before reader auto-advances
-  int x = 60;
-  int y = 40;
+  int x = 150;
+  int y = 100;
   int tbox_topbar_padding = 10;
   int topbar_height = 50;
  

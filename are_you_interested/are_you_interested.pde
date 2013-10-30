@@ -45,12 +45,13 @@ void setup() {
   stroke(255);
   textLeading(-5);
   frameRate(24);
-     
-     reddit = new Reddit();
-     //redditFont =  loadFont("nobile.vlw");
-     
-     smooth();
-     noStroke();
+ 
+   
+   reddit = new Reddit();
+   //redditFont =  loadFont("nobile.vlw");
+   
+   smooth();
+   noStroke();
      
   minim = new Minim(this);
   winsound = minim.loadSample("winsound.aiff", 512);
@@ -65,7 +66,6 @@ void draw() {
     stroke(text_color);
     checkForTimeout();
     
-    //textFont(redditFont);
     
     if (!No) {
       drawRedditInterface();
@@ -75,14 +75,14 @@ void draw() {
 
 void keyPressed() {
   
-  if (key == 'j') 
-    reddit.advance();
+  if (key == 'j') {
+    reddit.advance(); }
     
-  if (key == ENTER || key == RETURN) 
-    winsound.trigger(); reddit.markCurrentAsCool(); reddit.advance();
+  if (key == ENTER || key == RETURN) { 
+    winsound.trigger(); reddit.markCurrentAsCool(); reddit.advance(); }
     
-  if (key == 'q')
-    quit();
+  if (key == 'q') {
+    quit(); }
   
 }
 

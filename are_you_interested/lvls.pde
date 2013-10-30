@@ -6,7 +6,7 @@ void quit() {
     
     // open all interesting articles
     if (a.isCool)
-      open((String)a.title);
+      open((String)a.url);
     
     // TODO: add this article to an html-based 'dossier'
   }
