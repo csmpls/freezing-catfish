@@ -1,5 +1,7 @@
 import processing.serial.*;
-import controlP5.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import ddf.minim.*;
 
 /*
@@ -21,13 +23,11 @@ import ddf.minim.*;
 Reddit reddit;
 boolean No;
 
-ControlP5 cP5;
 Minim minim;
 AudioSample winsound;
 AudioSample losesound;
 
 
-ControlP5 cp5;
 PFont font;
 PFont second_font;
 

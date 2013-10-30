@@ -1,14 +1,32 @@
 void quit() {
- 
-
+  
+  try {
+  // set up html file for reviewing
+  File file =new File("review.html");
+  FileWriter fileWritter = new FileWriter(file.getName(),true);
+  BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
+  
+  //start the HTML file off
+  bufferedWriter.write(getLeadingHTML());
+  
   for (int i = 0; i < reddit.articles.size()-1;i++) {
 
     Article a = (Article)reddit.articles.get(i);
-
-    // TODO: add this article to an html-based 'dossier'
+    bufferedWriter.write(articleToHTML(a,i));
+    
   }
-
-  // TODO: launch the browser
+  
+  //finish html
+  bufferedWriter.write(getTrailingHTML());
+  bufferedWriter.close();
+  
+  // launch a browser page with the html
+  open("review.html");
+  }
+  
+  catch (Exception e) {
+    e.printStackTrace();
+  }
 
   exit();
 }
