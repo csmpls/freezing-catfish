@@ -1,4 +1,5 @@
 void quit() {
+ 
 
   for (int i = 0; i < reddit.articles.size()-1;i++) {
 

@@ -41,7 +41,7 @@ void setup() {
  
    
    reddit = new Reddit();
-   font =  loadFont("nobile.vlw");
+   font =  loadFont("LMSans.vlw");
    second_font = loadFont("Monoxil-Regular-68.vlw");
    
    smooth();

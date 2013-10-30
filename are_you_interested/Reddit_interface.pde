@@ -14,13 +14,13 @@ void drawRedditInterface() {
   
     fill (secondary_text_color);
     textAlign(LEFT, CENTER);
-    textSize(24);//textFont(second_font,24);
+    textFont(second_font,24);
     text(reddit.currentArticle.subreddit,
     x, y, tbox_width, topbar_height);
     
     fill(text_color);
     textAlign(LEFT, TOP);
-    textSize(52);//textFont(font,52);
+    textFont(font,68);
     text(reddit.currentArticle.title, 
     x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
 }
