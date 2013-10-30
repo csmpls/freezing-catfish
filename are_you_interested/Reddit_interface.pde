@@ -12,7 +12,7 @@
     
     
     
-      fill (bar_color);
+      fill (secondary_text_color);
       textSize(24);
       textAlign(LEFT, CENTER);
       text(reddit.currentArticle.subreddit,
