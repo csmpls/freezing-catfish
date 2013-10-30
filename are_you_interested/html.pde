@@ -8,7 +8,7 @@ String getLeadingHTML() {
 
 String articleToHTML(Article a, int index) {
 	return "<p> <input type='checkbox' class = 'big-check' name='" + index + "'>" 
-+ index+1 + " - " + a.title + "</p>";
++ (int)(index+1) + " - " + a.title + "</p>";
 }
 
 String getTrailingHTML() {
