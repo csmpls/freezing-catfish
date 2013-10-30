@@ -1,27 +1,35 @@
 void quit() {
   
   try {
-  // set up html file for reviewing
-  File file =new File("review.html");
-  FileWriter fileWritter = new FileWriter(file.getName(),true);
-  BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
-  
-  //start the HTML file off
-  bufferedWriter.write(getLeadingHTML());
-  
-  for (int i = 0; i < reddit.articles.size()-1;i++) {
-
-    Article a = (Article)reddit.articles.get(i);
-    bufferedWriter.write(articleToHTML(a,i));
+    // set up html file for reviewing
+    File file = new File("review.html");
+    file.createNewFile();
     
-  }
+    //wipe file contents
+    PrintWriter wiper = new PrintWriter(file);
+    wiper.print("");
+    wiper.close();
+
+    // set up a buffered writer for it
+    FileWriter fileWritter = new FileWriter(file,true);
+    BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
+    
+    //start the HTML file off
+    bufferedWriter.write(getLeadingHTML());
+    
+    for (int i = 0; i < reddit.articles.size()-1;i++) {
   
-  //finish html
-  bufferedWriter.write(getTrailingHTML());
-  bufferedWriter.close();
-  
-  // launch a browser page with the html
-  open("review.html");
+      Article a = (Article)reddit.articles.get(i);
+      bufferedWriter.write(articleToHTML(a,i));
+      
+    }
+    
+    //finish html
+    bufferedWriter.write(getTrailingHTML());
+    bufferedWriter.close();
+    
+    // launch a browser page with the html
+    open("review.html");
   }
   
   catch (Exception e) {
