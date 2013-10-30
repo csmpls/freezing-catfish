@@ -26,23 +26,10 @@ Minim minim;
 AudioSample winsound;
 AudioSample losesound;
 
-PFont redditFont;
-
-//==============ui vars
-//color background_color = color(12,12,12);
-//color slider_bg_color = color(31,30,30);
-//color text_color = color(226, 227, 223);
-//color text_color_win = color(200, 255, 200);
-//color text_color_lose = color(227, 56, 49);
-//color bar_color = color(202, 242, 0);
-
-// bright
-color background_color = color(154,54,51);
-color text_color = color(226, 227, 223);
-color secondary_text_color = color(113,113,113);
 
 ControlP5 cp5;
 PFont font;
+PFont second_font;
 
 void setup() {
   size (displayWidth, displayHeight);
@@ -54,14 +41,15 @@ void setup() {
  
    
    reddit = new Reddit();
-   //redditFont =  loadFont("nobile.vlw");
+   font =  loadFont("nobile.vlw");
+   second_font = loadFont("Monoxil-Regular-68.vlw");
    
    smooth();
    noStroke();
      
-  minim = new Minim(this);
-  winsound = minim.loadSample("winsound.aiff", 512);
-  losesound = minim.loadSample("losesound.aiff", 512);
+    minim = new Minim(this);
+    winsound = minim.loadSample("winsound.aiff", 512);
+    losesound = minim.loadSample("losesound.aiff", 512);
 
 }
 
@@ -88,6 +76,10 @@ void keyPressed() {
     
   if (key == 'q') {
     quit(); 
+  }
+  
+  if (key =='c') {
+    change_colors();
   }
   
 }

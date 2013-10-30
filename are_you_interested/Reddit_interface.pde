@@ -1,46 +1,36 @@
 
-  
-  int timeout = 5000; //how long in ms before reader auto-advances
-  int x = 60;
-  int y = 40;
-  int tbox_topbar_padding = 10;
-  int topbar_height = 50;
+
+int timeout = 5000; //how long in ms before reader auto-advances
+int x = 120;
+int y = 60;
+int tbox_topbar_padding = 10;
+int topbar_height = 50;
  
+
+void drawRedditInterface() {
+  int tbox_width = width-x-x-20;
   
-  void drawRedditInterface() {
-    int tbox_width = width-x-x-20;
-    
-    
-    
-      fill (secondary_text_color);
-      textSize(24);
-      textAlign(LEFT, CENTER);
-      text(reddit.currentArticle.subreddit,
-      x, y, tbox_width, topbar_height);
-      
-      fill(text_color);
-      textSize(48);
-      textAlign(LEFT, TOP);
-      text(reddit.currentArticle.title, 
-      x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
-  }
   
-  void checkForTimeout() {
-    if (reddit.curr_time+timeout > millis()) { }
-      // attn.lvldown();  TIMEOUTS NOT WORKING RN .. QUESTIONABLE IF WE EVEN WANT THIS FEATURE LIKE JUST USE THE KEYBOARD U KNOW
-  }
   
-  void drawPauseInterface() {
+    fill (secondary_text_color);
+    textAlign(LEFT, CENTER);
+    textSize(24);//textFont(second_font,24);
+    text(reddit.currentArticle.subreddit,
+    x, y, tbox_width, topbar_height);
     
-    int tbox_width = width-x-x-40;
-    
-      fill(text_color);
-      textSize(48);
-      textAlign(LEFT, TOP);
-      text("reading an article rn...press any key to continue", 
-      x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
-  }
-  
+    fill(text_color);
+    textAlign(LEFT, TOP);
+    textSize(52);//textFont(font,52);
+    text(reddit.currentArticle.title, 
+    x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
+}
+
+void checkForTimeout() {
+  if (reddit.curr_time+timeout > millis()) { }
+    // attn.lvldown();  TIMEOUTS NOT WORKING RN .. QUESTIONABLE IF WE EVEN WANT THIS FEATURE LIKE JUST USE THE KEYBOARD U KNOW
+}
+
+
 
 
 
