@@ -1,6 +1,6 @@
 String getLeadingHTML() {
 	return "<!doctype HTML>\n" +
-        "<head><link rel='stylesheet' href='style.css' type='text/css'></head>\n" +
+        "<head><link rel='stylesheet' href='http://people.berkeley.edu/~nick/dump/style.css' type='text/css'></head>\n" +
 	"<body>\n" +
         "<div class = 'squaredOne'>\n" +
 	"<form name='reviewform' action='' method='POST'>\n";
