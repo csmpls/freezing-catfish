@@ -25,6 +25,9 @@ void drawRedditInterface() {
     x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
 }
 
+void drawRestInterface() {
+}
+
 void checkForTimeout() {
   if (reddit.curr_time+timeout > millis()) { }
     // attn.lvldown();  TIMEOUTS NOT WORKING RN .. QUESTIONABLE IF WE EVEN WANT THIS FEATURE LIKE JUST USE THE KEYBOARD U KNOW

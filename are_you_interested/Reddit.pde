@@ -39,6 +39,14 @@ public class Reddit {
     
     // set the first article
     currentArticle = (Article)articles.get(curr);
+    
+    // set stimulus display timing for the first article
+     // set the length for which this should be displayed
+      current_display_length = show_stimulus_constant*currentArticle.title.length();
+      // set this stimulus's end time
+      stimulus_end = millis() + current_display_length;
+      // set the end of the rest period
+      rest_end = millis() + between_stimulus_pause;
   }
   
   int advance() { 
@@ -78,14 +86,6 @@ public class Article {
     subreddit = sr;
     isCool = false;
   }
-
-//  Article(String s, String u, String i, String sr) {
-//    title = s;
-//    url = u;
-//    img = i;
-//    subreddit = sr;
-      //isCool = false;
-//  }
 
   Article () {
     title = "error!!";

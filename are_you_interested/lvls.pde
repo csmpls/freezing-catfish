@@ -106,11 +106,40 @@ void change_colors() {
 }
 
 
-//==============ui vars
-//color background_color = color(12,12,12);
-//color slider_bg_color = color(31,30,30);
-//color text_color = color(226, 227, 223);
-//color text_color_win = color(200, 255, 200);
-//color text_color_lose = color(227, 56, 49);
-//color bar_color = color(202, 242, 0);
+//stimulus timing
+float stimulus_end = 0;  
+float current_display_length; //how long current slide should be shown for
+float rest_end;
 
+void update_stimulus() {
+  
+  if (show_stimulus) {
+    if (millis() > stimulus_end) {
+      
+      reddit.advance();
+      
+      // set the length for which this should be displayed
+      current_display_length = show_stimulus_constant*reddit.currentArticle.title.length();
+      current_display_length = constrain(current_display_length, stimulus_display_minimum, stimulus_display_maximum);
+      
+      // set this stimulus's end time
+      stimulus_end = millis() + current_display_length;
+      
+      // set the end of the rest period
+      rest_end = millis() + between_stimulus_pause;
+      
+      // now hide the stimulus - its time for the rest period
+      show_stimulus = false;
+    }
+  }
+  
+  else if (!show_stimulus) {
+    if (millis() > rest_end) {
+      
+      // show the next stimulus
+      show_stimulus = true;    
+    }
+  }
+}
+    
+    

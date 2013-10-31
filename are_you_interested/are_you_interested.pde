@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
-import ddf.minim.*;
 
 /*
         ////////////////////////////////////////////////
@@ -19,12 +18,13 @@ import ddf.minim.*;
         ////////////////////////////////////////////////
 * * */
 
-Reddit reddit;
-boolean No;
+float show_stimulus_constant = 50; //ms per character - how long titles will be displayed
+float stimulus_display_minimum = 2000; //never show a stimulus for fewer than 2000 ms
+float stimulus_display_maximum = 10000; //or more than 10s
+float between_stimulus_pause = 1000; //ms
+boolean show_stimulus = true;
 
-Minim minim;
-AudioSample winsound;
-AudioSample losesound;
+Reddit reddit;
 
 
 PFont font;
@@ -45,10 +45,6 @@ void setup() {
    
    smooth();
    noStroke();
-     
-    minim = new Minim(this);
-    winsound = minim.loadSample("winsound.aiff", 512);
-    losesound = minim.loadSample("losesound.aiff", 512);
 
 }
 
@@ -57,11 +53,13 @@ void draw() {
     fill(background_color,122);
     rect(-2,-2,width+2, height+2);
     stroke(text_color);
-    checkForTimeout();
     
+    update_stimulus();
     
-    if (!No) {
+    if (show_stimulus) {
       drawRedditInterface();
+    } else {
+      drawRestInterface();
     }
    
 }
@@ -85,12 +83,5 @@ void keyPressed() {
 
 boolean sketchFullScreen() {
   return true;
-}
-
-void stop() {
-  winsound.close();
-  losesound.close();
-  minim.stop();
-  super.stop();
 }
 
