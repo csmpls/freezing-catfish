@@ -23,7 +23,6 @@ void drawRedditInterface() {
     textFont(font,68);
     text(reddit.currentArticle.title, 
     x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
-		text(neurosky.attn_pulse, 0, 0, 50, 50);
 }
 
 void drawRestInterface() {

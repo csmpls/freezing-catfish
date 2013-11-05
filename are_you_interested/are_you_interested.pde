@@ -29,6 +29,7 @@ boolean show_stimulus = true;
 Reddit reddit;
 Neurosky neurosky = new Neurosky();
 String com_port = "/dev/tty.MindWave";
+boolean THUMBS_UP = false; // a global var that changes to true when we detect the neurosky is on + connected
 
 PFont font;
 PFont second_font;

@@ -51,6 +51,7 @@ boolean show_stimulus = true;
 Reddit reddit;
 Neurosky neurosky = new Neurosky();
 String com_port = "/dev/tty.MindWave";
+boolean THUMBS_UP = false; // a global var that changes to true when we detect the neurosky is on + connected
 
 PFont font;
 PFont second_font;
@@ -86,7 +87,7 @@ public void draw() {
     update_stimulus();
     
     if (show_stimulus) {
-      drawRedditInterface(mindset.data.attention);
+      drawRedditInterface();
     } else {
       drawRestInterface();
     }
@@ -221,7 +222,7 @@ int tbox_topbar_padding = 10;
 int topbar_height = 50;
  
 
-public void drawRedditInterface(int attention_value) {
+public void drawRedditInterface() {
   int tbox_width = width-x-x-20;
   
   
@@ -237,7 +238,6 @@ public void drawRedditInterface(int attention_value) {
     textFont(font,68);
     text(reddit.currentArticle.title, 
     x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
-		text(neurosky.attn_pulse, 0, 0, 50, 50);
 }
 
 public void drawRestInterface() {
