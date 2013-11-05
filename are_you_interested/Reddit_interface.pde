@@ -7,7 +7,7 @@ int tbox_topbar_padding = 10;
 int topbar_height = 50;
  
 
-void drawRedditInterface(int attention_value) {
+void drawRedditInterface() {
   int tbox_width = width-x-x-20;
   
   

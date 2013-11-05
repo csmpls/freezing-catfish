@@ -1,6 +1,8 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
+import processing.serial.*;
+import mindset.*;
 
 /*
         ////////////////////////////////////////////////
@@ -25,7 +27,7 @@ float between_stimulus_pause = 1000; //ms
 boolean show_stimulus = true;
 
 Reddit reddit;
-MindSet mindset = new MindSet(this);
+Neurosky neurosky = new Neurosky();
 String com_port = "/dev/tty.MindWave";
 
 PFont font;
@@ -44,7 +46,8 @@ void setup() {
    font =  loadFont("LMSans.vlw");
    second_font = loadFont("Monoxil-Regular-68.vlw");
    
-	 mindset.connect(com_port);
+   neurosky.initialize(this, com_port, false);
+
 	 
    smooth();
    noStroke();
@@ -61,7 +64,7 @@ void draw() {
     update_stimulus();
     
     if (show_stimulus) {
-      drawRedditInterface(mindset.data.attention);
+      drawRedditInterface();
     } else {
       drawRestInterface();
     }
