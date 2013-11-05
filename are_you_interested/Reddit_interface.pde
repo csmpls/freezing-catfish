@@ -29,11 +29,6 @@ void drawRedditInterface(int attention_value) {
 void drawRestInterface() {
 }
 
-void checkForTimeout() {
-  if (reddit.curr_time+timeout > millis()) { }
-    // attn.lvldown();  TIMEOUTS NOT WORKING RN .. QUESTIONABLE IF WE EVEN WANT THIS FEATURE LIKE JUST USE THE KEYBOARD U KNOW
-}
-
 
 
 
