@@ -25,7 +25,8 @@ float between_stimulus_pause = 1000; //ms
 boolean show_stimulus = true;
 
 Reddit reddit;
-
+MindSet mindset = new MindSet(this);
+String com_port = "/dev/tty.MindWave";
 
 PFont font;
 PFont second_font;
@@ -43,6 +44,8 @@ void setup() {
    font =  loadFont("LMSans.vlw");
    second_font = loadFont("Monoxil-Regular-68.vlw");
    
+	 mindset.connect(com_port);
+	 
    smooth();
    noStroke();
 
@@ -50,6 +53,7 @@ void setup() {
 
 void draw() {
     
+		
     fill(background_color,122);
     rect(-2,-2,width+2, height+2);
     stroke(text_color);
@@ -57,7 +61,7 @@ void draw() {
     update_stimulus();
     
     if (show_stimulus) {
-      drawRedditInterface();
+      drawRedditInterface(mindset.data.attention);
     } else {
       drawRestInterface();
     }
