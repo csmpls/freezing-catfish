@@ -67,7 +67,7 @@ public class Neurosky {
           if (attn < 20)  //hack: signal is overall low at beginning of stream 
             return 1;
             println("okay! i'm on!");
-            THUMBS_UP = true;
+            neuroskyOn = true;
         }
           has_initialized=true;
       } else {

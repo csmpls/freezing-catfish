@@ -1,6 +1,3 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
 import processing.serial.*;
 import mindset.*;
 
@@ -29,7 +26,8 @@ boolean show_stimulus = true;
 Reddit reddit;
 Neurosky neurosky = new Neurosky();
 String com_port = "/dev/tty.MindWave";
-boolean THUMBS_UP = false; // a global var that changes to true when we detect the neurosky is on + connected
+Logger log = new Logger(neurosky);
+boolean neuroskyOn = false; // a global var that changes to true when we detect the neurosky is on + connected
 
 PFont font;
 PFont second_font;
@@ -63,7 +61,8 @@ void draw() {
     stroke(text_color);
     
     update_stimulus();
-    
+    log.updateLog();
+		
     if (show_stimulus) {
       drawRedditInterface();
     } else {
