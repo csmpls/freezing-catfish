@@ -1,6 +1,5 @@
-import java.io.File;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
+import processing.serial.*;
+import mindset.*;
 
 /*
         ////////////////////////////////////////////////
@@ -17,19 +16,11 @@ import java.io.BufferedWriter;
         ////////////////////////////////////////////////
         ////////////////////////////////////////////////
 * * */
-
-float show_stimulus_constant = 50; //ms per character - how long titles will be displayed
-float stimulus_display_minimum = 2000; //never show a stimulus for fewer than 2000 ms
-float stimulus_display_maximum = 10000; //or more than 10s
-float between_stimulus_pause = 1000; //ms
-boolean show_stimulus = true;
-
-Reddit reddit;
-MindSet mindset = new MindSet(this);
+Neurosky neurosky = new Neurosky();
 String com_port = "/dev/tty.MindWave";
-
-PFont font;
-PFont second_font;
+Logger log = new Logger(neurosky);
+boolean neuroskyOn = false; // a global var that changes to true when we detect the neurosky is on + connected
+Display display;
 
 void setup() {
   size (displayWidth, displayHeight);
@@ -38,40 +29,28 @@ void setup() {
   stroke(255);
   textLeading(-5);
   frameRate(24);
- 
    
-   reddit = new Reddit();
-   font =  loadFont("LMSans.vlw");
-   second_font = loadFont("Monoxil-Regular-68.vlw");
-   
-	 mindset.connect(com_port);
-	 
-   smooth();
-   noStroke();
+	display = new Display();
+  neurosky.initialize(this, com_port, false);
 
+  smooth();
+  noStroke();
 }
-
+ 
 void draw() {
-    
-		
-    fill(background_color,122);
+    fill(display.background_color,122);
     rect(-2,-2,width+2, height+2);
-    stroke(text_color);
+    stroke(display.text_color);
     
-    update_stimulus();
-    
-    if (show_stimulus) {
-      drawRedditInterface(mindset.data.attention);
-    } else {
-      drawRestInterface();
-    }
+    display.update_stimulus();
+    log.updateLog(display.getStimulusIndex(), display.getStimulusName());
    
 }
 
 void keyPressed() {
   
   if (key == 'j') {
-    reddit.advance(); 
+    display.advance(); 
   }
     
     
@@ -80,12 +59,57 @@ void keyPressed() {
   }
   
   if (key =='c') {
-    change_colors();
+    display.change_colors();
   }
   
 }
 
 boolean sketchFullScreen() {
   return true;
+}
+
+
+
+void quit() {
+  
+  try {
+    // set up html file for reviewing
+    File file = new File("review.html");
+    file.createNewFile();
+    
+    //wipe file contents
+    PrintWriter wiper = new PrintWriter(file);
+    wiper.print("");
+    wiper.close();
+
+    // set up a buffered writer for it
+    FileWriter fileWritter = new FileWriter(file,true);
+    BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
+    
+    
+    //start the HTML file off
+    HTML html = new HTML();
+    bufferedWriter.write(html.getLeadingHTML());
+    
+    for (int i = 0; i < display.getReddit().articles.size()-1;i++) {
+  
+      Article a = (Article)display.getReddit().articles.get(i);
+      bufferedWriter.write(html.articleToHTML(a,i));
+      
+    }
+    
+    //finish html
+    bufferedWriter.write(html.getTrailingHTML());
+    bufferedWriter.close();
+    
+    // launch a browser page with the html
+    open("review.html");
+  }
+  
+  catch (Exception e) {
+    e.printStackTrace();
+  }
+
+  exit();
 }
 
