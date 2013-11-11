@@ -24,8 +24,8 @@ class Logger {
 		println("opened new log file!");
 	}
 
-	void updateLog(){
-  	String[] logline = { getTimestamp(), Float.toString(eeg.attn), Float.toString(eeg.med) };
+	void updateLog(int currentStimulus){
+  	String[] logline = { getTimestamp(), Float.toString(eeg.attn), Float.toString(eeg.med), Integer.toString(currentStimulus) };
   	try {
     	log.write(get_csv_line(logline));
 			println(get_csv_line(logline));
@@ -50,8 +50,12 @@ class Logger {
 
 
 	void closeLog() {
-		log.flush();
-		log.close();
+		try {
+			log.flush();
+			log.close();
+		} catch (Exception e) {
+			println("ERROR: Problem flushing or closing log data.");
+		}
 	}
 
 	String getTimestamp() {

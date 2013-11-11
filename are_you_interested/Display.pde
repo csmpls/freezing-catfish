@@ -1,6 +1,15 @@
 
 
 class Display {
+	
+	public int stimulusCount = 0;
+	
+	float show_stimulus_constant = 50; //ms per character - how long titles will be displayed
+	float stimulus_display_minimum = 2000; //never show a stimulus for fewer than 2000 ms
+	float stimulus_display_maximum = 10000; //or more than 10s
+	float between_stimulus_pause = 1000; //ms
+	boolean show_stimulus = true;
+	
 	//stimulus timing
 	float stimulus_end = 0;  
 	float current_display_length; //how long current slide should be shown for
@@ -12,9 +21,45 @@ class Display {
 
 
 	// dark default
-	color background_color = color(48,16,45);
-	color text_color = color(244,223,241);
-	color secondary_text_color = color(53,159,120);
+	public color background_color = color(48,16,45);
+	public color text_color = color(244,223,241);
+	public color secondary_text_color = color(53,159,120);
+
+	Reddit reddit;
+	
+	PFont font;
+	PFont second_font;
+
+	Display() {
+		reddit = new Reddit();
+		
+		current_display_length = reddit.getInitialLength() * show_stimulus_constant;
+    // set this stimulus's end time
+    stimulus_end = millis() + current_display_length;
+    // set the end of the rest period
+    rest_end = millis() + between_stimulus_pause;
+		
+    font =  loadFont("LMSans.vlw");
+    second_font = loadFont("Monoxil-Regular-68.vlw");
+	}
+	
+	Reddit getReddit() {
+  	return reddit;
+	}
+	
+	void advance() {
+		reddit.advance();
+		stimulusCount++;
+	}
+	
+	int getCurrentStimulus() {
+		if(show_stimulus) {
+			return stimulusCount;
+		}
+		else {
+			return -1;
+		}
+	}
 
 	void update_stimulus() {
   
@@ -22,6 +67,7 @@ class Display {
 	    if (millis() > stimulus_end) {
       
 	      reddit.advance();
+				stimulusCount++;
       
 	      // set the length for which this should be displayed
 	      current_display_length = show_stimulus_constant*reddit.currentArticle.title.length();
@@ -45,6 +91,13 @@ class Display {
 	      show_stimulus = true;    
 	    }
 	  }
+		
+    if (show_stimulus) {
+      drawRedditInterface();
+    } else {
+      drawRestInterface();
+    }
+		
 	}
 
 
@@ -96,5 +149,31 @@ class Display {
 	    text_color = color(191,178,64);
 	    secondary_text_color = color(210,198,197);
 	  }
+	}
+	
+	void drawRedditInterface() {
+
+	  int x = 120;
+	  int y = 60;
+	  int tbox_topbar_padding = 10;
+	  int topbar_height = 50;
+  
+	    int tbox_width = width-x-x-20;
+  
+  
+	    fill (secondary_text_color);
+	    textAlign(LEFT, CENTER);
+	    textFont(second_font,24);
+	    text(reddit.currentArticle.subreddit,
+	    x, y, tbox_width, topbar_height);
+    
+	    fill(text_color);
+	    textAlign(LEFT, TOP);
+	    textFont(font,68);
+	    text(reddit.currentArticle.title, 
+	    x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
+	}
+
+	void drawRestInterface() {
 	}
 }

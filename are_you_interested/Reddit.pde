@@ -40,14 +40,15 @@ public class Reddit {
     // set the first article
     currentArticle = (Article)articles.get(curr);
     
-    // set stimulus display timing for the first article
-     // set the length for which this should be displayed
-      current_display_length = show_stimulus_constant*currentArticle.title.length();
-      // set this stimulus's end time
-      stimulus_end = millis() + current_display_length;
-      // set the end of the rest period
-      rest_end = millis() + between_stimulus_pause;
   }
+	
+	int getInitialLength() {
+		// set stimulus display timing for the first article
+    // set the length for which this should be displayed
+    return currentArticle.title.length();
+	}
+	
+	
   
   int advance() { 
     curr++;
