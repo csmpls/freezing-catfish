@@ -32,8 +32,8 @@ public class Neurosky {
   String com_port;
   boolean god;
   
-  float attn = 50;
-  float med = 50;
+  float attn;
+  float med;
   
   float attn_pulse;
   float med_pulse;

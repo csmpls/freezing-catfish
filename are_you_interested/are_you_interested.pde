@@ -92,10 +92,6 @@ boolean sketchFullScreen() {
   return true;
 }
 
-
-
- 
-
 void drawRedditInterface() {
 
   int x = 120;

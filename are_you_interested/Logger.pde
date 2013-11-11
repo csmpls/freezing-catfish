@@ -1,42 +1,35 @@
 import java.io.File;
+import java.io.PrintWriter;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 
 class Logger {
-	BufferedWriter log;
 	Neurosky eeg;
+	FileWriter log;
 
 	Logger(Neurosky eeg) {
   
 		this.eeg = eeg;
 	
   	try {
-    	// set up html file for reviewing
-    	File file = new File("log.csv");
-    	file.createNewFile();
-      
-     println("opened new log file!");
-    
-    	//wipe file contents
-    	PrintWriter wiper = new PrintWriter(file);
-    	wiper.print("");
-    	wiper.close();
-
-    	// set up a buffered writer for it
-    	FileWriter fileWritter = new FileWriter(file,true);
-    	log = new BufferedWriter(fileWritter);
-  	}
-  
-  	catch (Exception e) {
-    	e.printStackTrace();
-  	}
+			File file = new File("log.csv");
+			file.createNewFile();
+			log = new FileWriter(file);
+		}
+		catch (Exception except) {
+			println("File not found: log.csv");
+		}
+		
+		println("opened new log file!");
 	}
 
 	void updateLog(){
   	String[] logline = { getTimestamp(), Float.toString(eeg.attn), Float.toString(eeg.med) };
-   println(get_csv_line(logline));
   	try {
     	log.write(get_csv_line(logline));
+			println(get_csv_line(logline));
+			log.flush();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -55,6 +48,11 @@ class Logger {
 		return ll;
 	}
 
+
+	void closeLog() {
+		log.flush();
+		log.close();
+	}
 
 	String getTimestamp() {
   	int s = second(); 
