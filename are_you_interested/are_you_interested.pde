@@ -43,7 +43,7 @@ void draw() {
     stroke(display.text_color);
     
     display.update_stimulus();
-    log.updateLog(display.getCurrentStimulus());
+    log.updateLog(display.getStimulusIndex(), display.getStimulusName());
    
 }
 
@@ -86,18 +86,20 @@ void quit() {
     FileWriter fileWritter = new FileWriter(file,true);
     BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
     
+    
     //start the HTML file off
-    bufferedWriter.write(getLeadingHTML());
+    HTML html = new HTML();
+    bufferedWriter.write(html.getLeadingHTML());
     
     for (int i = 0; i < display.getReddit().articles.size()-1;i++) {
   
       Article a = (Article)display.getReddit().articles.get(i);
-      bufferedWriter.write(articleToHTML(a,i));
+      bufferedWriter.write(html.articleToHTML(a,i));
       
     }
     
     //finish html
-    bufferedWriter.write(getTrailingHTML());
+    bufferedWriter.write(html.getTrailingHTML());
     bufferedWriter.close();
     
     // launch a browser page with the html

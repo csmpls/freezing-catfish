@@ -24,8 +24,8 @@ class Logger {
 		println("opened new log file!");
 	}
 
-	void updateLog(int currentStimulus){
-  	String[] logline = { getTimestamp(), Float.toString(eeg.attn), Float.toString(eeg.med), Integer.toString(currentStimulus) };
+	void updateLog(int stimulusIndex, String stimulusName){
+  	String[] logline = { getTimestamp(), Float.toString(eeg.attn), Float.toString(eeg.med), Integer.toString(stimulusIndex), stimulusName  };
   	try {
     	log.write(get_csv_line(logline));
 			println(get_csv_line(logline));

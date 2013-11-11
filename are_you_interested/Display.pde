@@ -52,7 +52,7 @@ class Display {
 		stimulusCount++;
 	}
 	
-	int getCurrentStimulus() {
+	int getStimulusIndex() {
 		if(show_stimulus) {
 			return stimulusCount;
 		}
@@ -60,6 +60,15 @@ class Display {
 			return -1;
 		}
 	}
+
+        String getStimulusName() {
+               if(show_stimulus) {
+                  return reddit.currentArticle.title;
+                }
+                else {
+                  return "";
+                }
+        }
 
 	void update_stimulus() {
   
