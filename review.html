@@ -7,7 +7,7 @@
 
 </head>
 <body>
-<h1>check the articles you were interested in.</h1><div class="squaredOne">
+<h1>check the articles you were interested in. if you didn't see an article, just skip it.</h1><div class="squaredOne">
 
 
 <form name="reviewform" action="" method="POST">
@@ -26,11 +26,25 @@
 <script>
 
 $("input[type=submit]").click(function () {
-    var answer = $("#checkbox").val();
+    var csv = "";
     $("input:checked").each(function () {
-        var name = $(this).attr("name");
-        alert("Do something for: " + name + ", " + answer);
+        var name = $(this).attr("id");
+        var title = $(this).attr("name")
+        csv += name + "," + title + "\n";
     });
+
+          // Data URI
+         csvData = 'data:application/csv;charset=utf-8,' + encodeURIComponent(csv);
+
+        $(this)
+            .attr({
+            'download': "groundtruth",
+                'href': csvData,
+                'target': '_blank'
+        });
+    
+
+
 });
 
 </script>
