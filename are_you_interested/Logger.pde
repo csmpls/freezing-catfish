@@ -13,12 +13,17 @@ class Logger {
 		this.eeg = eeg;
 	
   	try {
-			File file = new File("log.csv");
+                        // get a unix timestamp
+                        Date d = new Date();
+                        long current = d.getTime()/1000;
+                        
+                        //create a log file
+			File file = new File(current + "-eeg.csv");
 			file.createNewFile();
 			log = new FileWriter(file);
 		}
 		catch (Exception except) {
-			println("File not found: log.csv");
+			println("File not found.");
 		}
 		
 		println("opened new log file!");
