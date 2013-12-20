@@ -13,12 +13,10 @@ class Logger {
 		this.eeg = eeg;
 	
   	try {
-                        // get a unix timestamp
-                        Date d = new Date();
-                        long current = d.getTime()/1000;
+                     
                         
                         //create a log file
-			File file = new File(current + "-eeg.csv");
+			File file = new File(session_id + "-eeg.csv");
 			file.createNewFile();
 			log = new FileWriter(file);
 		}
@@ -69,4 +67,4 @@ class Logger {
   	int h = hour(); 
   	return(h + ":" + m + ":" + s);
 	}
-}
+} 

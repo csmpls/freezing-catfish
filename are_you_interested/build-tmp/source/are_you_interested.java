@@ -3,11 +3,14 @@ import processing.data.*;
 import processing.event.*; 
 import processing.opengl.*; 
 
-import java.io.File; 
-import java.io.FileWriter; 
-import java.io.BufferedWriter; 
 import processing.serial.*; 
 import mindset.*; 
+import java.util.Date; 
+import java.io.File; 
+import java.io.PrintWriter; 
+import java.io.FileWriter; 
+import java.io.BufferedWriter; 
+import java.io.FileNotFoundException; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -19,8 +22,6 @@ import java.io.OutputStream;
 import java.io.IOException; 
 
 public class are_you_interested extends PApplet {
-
-
 
 
 
@@ -41,20 +42,13 @@ public class are_you_interested extends PApplet {
         ////////////////////////////////////////////////
         ////////////////////////////////////////////////
 * * */
-
-float show_stimulus_constant = 50; //ms per character - how long titles will be displayed
-float stimulus_display_minimum = 2000; //never show a stimulus for fewer than 2000 ms
-float stimulus_display_maximum = 10000; //or more than 10s
-float between_stimulus_pause = 1000; //ms
-boolean show_stimulus = true;
-
-Reddit reddit;
 Neurosky neurosky = new Neurosky();
 String com_port = "/dev/tty.MindWave";
-boolean THUMBS_UP = false; // a global var that changes to true when we detect the neurosky is on + connected
+Logger log = new Logger(neurosky);
+boolean neuroskyOn = false; // a global var that changes to true when we detect the neurosky is on + connected
+Display display;
 
-PFont font;
-PFont second_font;
+String session_id;
 
 public void setup() {
   size (displayWidth, displayHeight);
@@ -63,41 +57,30 @@ public void setup() {
   stroke(255);
   textLeading(-5);
   frameRate(24);
- 
-   
-   reddit = new Reddit();
-   font =  loadFont("LMSans.vlw");
-   second_font = loadFont("Monoxil-Regular-68.vlw");
-   
-   neurosky.initialize(this, com_port, false);
 
-	 
-   smooth();
-   noStroke();
+  set_session_id();
+   
+	display = new Display();
+  neurosky.initialize(this, com_port, false);
 
+  smooth();
+  noStroke();
 }
  
 public void draw() {
-    
-		
-    fill(background_color,122);
+    fill(display.background_color,122);
     rect(-2,-2,width+2, height+2);
-    stroke(text_color);
+    stroke(display.text_color);
     
-    update_stimulus();
-    
-    if (show_stimulus) {
-      drawRedditInterface();
-    } else {
-      drawRestInterface();
-    }
+    display.update_stimulus();
+    log.updateLog(display.getStimulusIndex(), display.getStimulusName());
    
 }
 
 public void keyPressed() {
   
   if (key == 'j') {
-    reddit.advance(); 
+    display.advance(); 
   }
     
     
@@ -106,7 +89,11 @@ public void keyPressed() {
   }
   
   if (key =='c') {
-    change_colors();
+    display.change_colors();
+  }
+
+  if (key == 'q') {
+    quit();
   }
   
 }
@@ -115,6 +102,317 @@ public boolean sketchFullScreen() {
   return true;
 }
 
+public void set_session_id() {
+     // get a unix timestamp
+  Date d = new Date();
+  session_id = String.valueOf(d.getTime()/1000);
+}
+
+
+
+public void quit() {
+  
+  try {
+    // set up html file for reviewing
+    File file = new File("review.html");
+    file.createNewFile();
+    
+    //wipe file contents
+    PrintWriter wiper = new PrintWriter(file);
+    wiper.print("");
+    wiper.close();
+
+    // set up a buffered writer for it
+    FileWriter fileWritter = new FileWriter(file,true);
+    BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
+    
+    
+    //start the HTML file off
+    HTML html = new HTML();
+    bufferedWriter.write(html.getLeadingHTML());
+    
+    for (int i = 0; i < display.getReddit().articles.size()-1;i++) {
+  
+      Article a = (Article)display.getReddit().articles.get(i);
+      bufferedWriter.write(html.articleToHTML(a,i));
+      
+    }
+    
+    //finish html
+    bufferedWriter.write(html.getTrailingHTML());
+    bufferedWriter.close();
+    
+    // launch a browser page with the html
+    open("review.html");
+  }
+  
+  catch (Exception e) {
+    e.printStackTrace();
+  }
+
+  exit();
+}
+
+
+
+class Display {
+	
+	public int stimulusCount = 0;
+	
+	float show_stimulus_constant = 50; //ms per character - how long titles will be displayed
+	float stimulus_display_minimum = 2000; //never show a stimulus for fewer than 2000 ms
+	float stimulus_display_maximum = 10000; //or more than 10s
+	float between_stimulus_pause = 1000; //ms
+	boolean show_stimulus = true;
+	
+	//stimulus timing
+	float stimulus_end = 0;  
+	float current_display_length; //how long current slide should be shown for
+	float rest_end;
+	
+	//colors
+	int color_num = 0;
+	int num_colors = 4;
+
+
+	// dark default
+	public int background_color = color(48,16,45);
+	public int text_color = color(244,223,241);
+	public int secondary_text_color = color(53,159,120);
+
+	Reddit reddit;
+	
+	PFont font;
+	PFont second_font;
+
+	Display() {
+		reddit = new Reddit();
+		
+		current_display_length = reddit.getInitialLength() * show_stimulus_constant;
+    // set this stimulus's end time
+    stimulus_end = millis() + current_display_length;
+    // set the end of the rest period
+    rest_end = millis() + between_stimulus_pause;
+		
+    font =  loadFont("LMSans.vlw");
+    second_font = loadFont("Monoxil-Regular-68.vlw");
+	}
+	
+	public Reddit getReddit() {
+  	return reddit;
+	}
+	
+	public void advance() {
+		reddit.advance();
+		stimulusCount++;
+	}
+	
+	public int getStimulusIndex() {
+		if(show_stimulus) {
+			return stimulusCount;
+		}
+		else {
+			return -1;
+		}
+	}
+
+        public String getStimulusName() {
+               if(show_stimulus) {
+                  return reddit.currentArticle.title;
+                }
+                else {
+                  return "";
+                }
+        }
+
+	public void update_stimulus() {
+  
+	  if (show_stimulus) {
+	    if (millis() > stimulus_end) {
+      
+	      reddit.advance();
+				stimulusCount++;
+      
+	      // set the length for which this should be displayed
+	      current_display_length = show_stimulus_constant*reddit.currentArticle.title.length();
+	      current_display_length = constrain(current_display_length, stimulus_display_minimum, stimulus_display_maximum);
+      
+	      // set this stimulus's end time
+	      stimulus_end = millis() + current_display_length;
+      
+	      // set the end of the rest period
+	      rest_end = millis() + between_stimulus_pause;
+      
+	      // now hide the stimulus - its time for the rest period
+	      show_stimulus = false;
+	    }
+	  }
+  
+	  else if (!show_stimulus) {
+	    if (millis() > rest_end) {
+      
+	      // show the next stimulus
+	      show_stimulus = true;    
+	    }
+	  }
+		
+    if (show_stimulus) {
+      drawRedditInterface();
+    } else {
+      drawRestInterface();
+    }
+		
+	}
+
+
+	public void change_colors() {
+
+	  color_num++;
+	  if (color_num > num_colors) {
+	    color_num=0; }
+    
+	    //dark default
+	    if (color_num == 0) {
+	     background_color = color(48,16,45);
+	      text_color = color(244,223,241);
+	      secondary_text_color = color(53,159,120);
+	    }
+
+	  if (color_num == 1) {
+
+	     // pinky
+	     background_color = color(157,68,52);
+	     text_color = color(226,179,168);
+	     secondary_text_color = color(82,24,24);
+	  }
+
+	  if (color_num == 2) {
+	    // light blue
+	    background_color = color(26, 43, 79);
+	    text_color = color(216, 224, 242);
+	    secondary_text_color = color(61, 184, 98);
+	  }
+
+	  if (color_num == 3) {
+	    // vintage yellow/white-on-blue
+	    background_color = color(54, 41, 124);
+	    text_color = color(236, 228, 246);
+	    secondary_text_color = color(255, 255, 0);
+	  }
+  
+	  if (color_num == 4) {
+	    // aquamarine
+	    background_color = color(53, 160, 144);
+	    text_color = color(22, 67, 54);
+	    secondary_text_color = color(200,234,236);
+	  }
+  
+	  if (color_num == 5) {
+	    // autumnal king
+	    background_color = color(29,88,44);
+	    text_color = color(191,178,64);
+	    secondary_text_color = color(210,198,197);
+	  }
+	}
+	
+	public void drawRedditInterface() {
+
+	  int x = 120;
+	  int y = 60;
+	  int tbox_topbar_padding = 10;
+	  int topbar_height = 50;
+  
+	    int tbox_width = width-x-x-20;
+  
+  
+	    fill (secondary_text_color);
+	    textAlign(LEFT, CENTER);
+	    textFont(second_font,24);
+	    text(reddit.currentArticle.subreddit,
+	    x, y, tbox_width, topbar_height);
+    
+	    fill(text_color);
+	    textAlign(LEFT, TOP);
+	    textFont(font,68);
+	    text(reddit.currentArticle.title, 
+	    x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
+	}
+
+	public void drawRestInterface() {
+	}
+}
+
+
+
+
+
+
+class Logger {
+	Neurosky eeg;
+	FileWriter log;
+
+	Logger(Neurosky eeg) {
+  
+		this.eeg = eeg;
+	
+  	try {
+                     
+                        
+                        //create a log file
+			File file = new File(session_id + "-eeg.csv");
+			file.createNewFile();
+			log = new FileWriter(file);
+		}
+		catch (Exception except) {
+			println("File not found.");
+		}
+		
+		println("opened new log file!");
+	}
+
+	public void updateLog(int stimulusIndex, String stimulusName){
+  	String[] logline = { getTimestamp(), Float.toString(eeg.attn), Float.toString(eeg.med), Integer.toString(stimulusIndex), stimulusName  };
+  	try {
+    	log.write(get_csv_line(logline));
+			println(get_csv_line(logline));
+			log.flush();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+	}
+
+	public String get_csv_line(String[] values) {
+  	String ll = "";
+
+  	for (int i = 0; i < values.length; i++) {
+    	if (i < values.length-1) 
+      	ll += values[i] + ",";
+    	else 
+      	ll += values[i] + "\n";
+		} 
+		
+		return ll;
+	}
+
+
+	public void closeLog() {
+		try {
+			log.flush();
+			log.close();
+		} catch (Exception e) {
+			println("ERROR: Problem flushing or closing log data.");
+		}
+	}
+
+	public String getTimestamp() {
+  	int s = second(); 
+  	int m = minute(); 
+  	int h = hour(); 
+  	return(h + ":" + m + ":" + s);
+	}
+} 
+public class NeuroMock extends Neurosky {
+}
 public class Reddit {
   
   
@@ -157,14 +455,15 @@ public class Reddit {
     // set the first article
     currentArticle = (Article)articles.get(curr);
     
-    // set stimulus display timing for the first article
-     // set the length for which this should be displayed
-      current_display_length = show_stimulus_constant*currentArticle.title.length();
-      // set this stimulus's end time
-      stimulus_end = millis() + current_display_length;
-      // set the end of the rest period
-      rest_end = millis() + between_stimulus_pause;
   }
+	
+	public int getInitialLength() {
+		// set stimulus display timing for the first article
+    // set the length for which this should be displayed
+    return currentArticle.title.length();
+	}
+	
+	
   
   public int advance() { 
     curr++;
@@ -214,265 +513,32 @@ public class Article {
 }
 
 
-
-int timeout = 5000; //how long in ms before reader auto-advances
-int x = 120;
-int y = 60;
-int tbox_topbar_padding = 10;
-int topbar_height = 50;
- 
-
-public void drawRedditInterface() {
-  int tbox_width = width-x-x-20;
-  
-  
-  
-    fill (secondary_text_color);
-    textAlign(LEFT, CENTER);
-    textFont(second_font,24);
-    text(reddit.currentArticle.subreddit,
-    x, y, tbox_width, topbar_height);
+public class HTML {
     
-    fill(text_color);
-    textAlign(LEFT, TOP);
-    textFont(font,68);
-    text(reddit.currentArticle.title, 
-    x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
-}
-
-public void drawRestInterface() {
-}
-
-public void checkForTimeout() {
-  if (reddit.curr_time+timeout > millis()) { }
-    // attn.lvldown();  TIMEOUTS NOT WORKING RN .. QUESTIONABLE IF WE EVEN WANT THIS FEATURE LIKE JUST USE THE KEYBOARD U KNOW
-}
-
-
-
-
-
-
-
-
-public String getLeadingHTML() {
-	return "<!doctype HTML>\n" +
-        "<head><link rel='stylesheet' href='http://people.berkeley.edu/~nick/dump/style.css' type='text/css'></head>\n" +
-	"<body>\n" +
-        "<h1>check the articles you were interested in.</h1>" + 
-        "<div class = 'squaredOne'>\n" +
-	"<form name='reviewform' action='' method='POST'>\n";
-}
-
-public String articleToHTML(Article a, int index) {
-	return "<p> <input type='checkbox' class = 'big-check' name='" + index + "'>" 
-+ (int)(index+1) + " - " + a.title + "</p>";
-}
-
-public String getTrailingHTML() {
-	return "</form>\n" +
-        "</div>\n" +
-        "</body>\n" + 
-	"</html>";
-}
-BufferedWriter logger;
-
-public void setupLog() {
-  
-  try {
-    // set up html file for reviewing
-    File file = new File("log.csv");
-    file.createNewFile();
-    
-    //wipe file contents
-    PrintWriter wiper = new PrintWriter(file);
-    wiper.print("");
-    wiper.close();
-
-    // set up a buffered writer for it
-    FileWriter fileWritter = new FileWriter(file,true);
-    logger = new BufferedWriter(fileWritter);
+  public String getLeadingHTML() {
+  	return "<!doctype HTML>\n" +
+          "<head><script src='http://code.jquery.com/jquery-1.9.1.js'></script></head>\n" + 
+  	"<body>\n" +
+          "<h1>check the articles you were interested in.</h1>" + 
+          "<div class = 'squaredOne'>\n" +
+  	"<form name='reviewform' action='http://cosmopol.is/interestminer/index.py/' method='POST'>\n" +
+    "<input type ='text' name = 'session-id' value = '" + session_id + "'>this is your session id - don't change (this will be hidden soon)<p>\n";
   }
   
-  catch (Exception e) {
-    e.printStackTrace();
-  }
-}
-
-public void updateLog() {
-  String[] logline = { getTimestamp(), Float.toString(neurosky.attn), Float.toString(neurosky.med) };
-  try {
-    logger.write(get_csv_line(logline));
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-}
-
-public String get_csv_line(String[] values) {
-
-  String ll = "";
-
-  for (int i = 0; i < values.length; i++) {
-    if (i < values.length-1) 
-      ll += values[i] + ",";
-    else 
-      ll += values[i] + "\n";
-
-  } return ll;
-}
-
-
-public String getTimestamp() {
-  int s = second(); 
-  int m = minute(); 
-  int h = hour(); 
-  return(h + ":" + m + ":" + s);
-}
-public void quit() {
-  
-  try {
-    // set up html file for reviewing
-    File file = new File("review.html");
-    file.createNewFile();
-    
-    //wipe file contents
-    PrintWriter wiper = new PrintWriter(file);
-    wiper.print("");
-    wiper.close();
-
-    // set up a buffered writer for it
-    FileWriter fileWritter = new FileWriter(file,true);
-    BufferedWriter bufferedWriter = new BufferedWriter(fileWritter);
-    
-    //start the HTML file off
-    bufferedWriter.write(getLeadingHTML());
-    
-    for (int i = 0; i < reddit.articles.size()-1;i++) {
-  
-      Article a = (Article)reddit.articles.get(i);
-      bufferedWriter.write(articleToHTML(a,i));
-      
-    }
-    
-    //finish html
-    bufferedWriter.write(getTrailingHTML());
-    bufferedWriter.close();
-    
-    // launch a browser page with the html
-    open("review.html");
+  public String articleToHTML(Article a, int index) {
+  	return "<input type='checkbox' class = 'big-check' name = '" + index + "'>" 
+  + (int)(index) + " - " + a.title + "</p>";
   }
   
-  catch (Exception e) {
-    e.printStackTrace();
-  }
-
-  exit();
-}
-
-
-
-
-
-//colors
-int color_num = 0;
-int num_colors = 4;
-
-
-// dark default
-int background_color = color(48,16,45);
-int text_color = color(244,223,241);
-int secondary_text_color = color(53,159,120);
-
-
-public void change_colors() {
-
-  color_num++;
-  if (color_num > num_colors) {
-    color_num=0; }
-    
-    //dark default
-    if (color_num == 0) {
-     background_color = color(48,16,45);
-      text_color = color(244,223,241);
-      secondary_text_color = color(53,159,120);
-    }
-
-  if (color_num == 1) {
-
-     // pinky
-     background_color = color(157,68,52);
-     text_color = color(226,179,168);
-     secondary_text_color = color(82,24,24);
-  }
-
-  if (color_num == 2) {
-    // light blue
-    background_color = color(26, 43, 79);
-    text_color = color(216, 224, 242);
-    secondary_text_color = color(61, 184, 98);
-  }
-
-  if (color_num == 3) {
-    // vintage yellow/white-on-blue
-    background_color = color(54, 41, 124);
-    text_color = color(236, 228, 246);
-    secondary_text_color = color(255, 255, 0);
-  }
-  
-  if (color_num == 4) {
-    // aquamarine
-    background_color = color(53, 160, 144);
-    text_color = color(22, 67, 54);
-    secondary_text_color = color(200,234,236);
-  }
-  
-  if (color_num == 5) {
-    // autumnal king
-    background_color = color(29,88,44);
-    text_color = color(191,178,64);
-    secondary_text_color = color(210,198,197);
-  }
+  public String getTrailingHTML() {
+  	return 
+          "<input type='submit'></form>\n" +
+          "</div>\n" +
+          "</body>\n" + 
+  	"</html>";
+  }  
 
 }
-
-
-//stimulus timing
-float stimulus_end = 0;  
-float current_display_length; //how long current slide should be shown for
-float rest_end;
-
-public void update_stimulus() {
-  
-  if (show_stimulus) {
-    if (millis() > stimulus_end) {
-      
-      reddit.advance();
-      
-      // set the length for which this should be displayed
-      current_display_length = show_stimulus_constant*reddit.currentArticle.title.length();
-      current_display_length = constrain(current_display_length, stimulus_display_minimum, stimulus_display_maximum);
-      
-      // set this stimulus's end time
-      stimulus_end = millis() + current_display_length;
-      
-      // set the end of the rest period
-      rest_end = millis() + between_stimulus_pause;
-      
-      // now hide the stimulus - its time for the rest period
-      show_stimulus = false;
-    }
-  }
-  
-  else if (!show_stimulus) {
-    if (millis() > rest_end) {
-      
-      // show the next stimulus
-      show_stimulus = true;    
-    }
-  }
-}
-    
-    
 /*
 NEUROSKY
 yes@cosmopol.is
@@ -507,8 +573,8 @@ public class Neurosky {
   String com_port;
   boolean god;
   
-  float attn = 50;
-  float med = 50;
+  float attn;
+  float med;
   
   float attn_pulse;
   float med_pulse;
@@ -542,7 +608,7 @@ public class Neurosky {
           if (attn < 20)  //hack: signal is overall low at beginning of stream 
             return 1;
             println("okay! i'm on!");
-            THUMBS_UP = true;
+            neuroskyOn = true;
         }
           has_initialized=true;
       } else {

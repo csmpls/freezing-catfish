@@ -6,16 +6,18 @@ public class HTML {
   	"<body>\n" +
           "<h1>check the articles you were interested in.</h1>" + 
           "<div class = 'squaredOne'>\n" +
-  	"<form name='reviewform' action='http://cosmopol.is/interestminer/index.py/' method='POST'>\n";
+  	"<form name='reviewform' action='http://cosmopol.is/interestminer/index.py/' method='POST'>\n" +
+    "<input type ='text' name = 'session-id' value = '" + session_id + "'>this is your session id - don't change (this will be hidden soon)<p>\n";
   }
   
   String articleToHTML(Article a, int index) {
-  	return "<p> <input type='checkbox' class = 'big-check' name = '" + index + "'>" 
+  	return "<input type='checkbox' class = 'big-check' name = '" + index + "'>" 
   + (int)(index) + " - " + a.title + "</p>";
   }
   
   String getTrailingHTML() {
-  	return "<input type='submit'></form>\n" +
+  	return 
+          "<input type='submit'></form>\n" +
           "</div>\n" +
           "</body>\n" + 
   	"</html>";

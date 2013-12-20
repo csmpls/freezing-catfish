@@ -23,6 +23,8 @@ Logger log = new Logger(neurosky);
 boolean neuroskyOn = false; // a global var that changes to true when we detect the neurosky is on + connected
 Display display;
 
+String session_id;
+
 void setup() {
   size (displayWidth, displayHeight);
   frameRate(24);
@@ -30,6 +32,8 @@ void setup() {
   stroke(255);
   textLeading(-5);
   frameRate(24);
+
+  set_session_id();
    
 	display = new Display();
   neurosky.initialize(this, com_port, false);
@@ -62,11 +66,21 @@ void keyPressed() {
   if (key =='c') {
     display.change_colors();
   }
+
+  if (key == 'q') {
+    quit();
+  }
   
 }
 
 boolean sketchFullScreen() {
   return true;
+}
+
+void set_session_id() {
+     // get a unix timestamp
+  Date d = new Date();
+  session_id = String.valueOf(d.getTime()/1000);
 }
 
 
