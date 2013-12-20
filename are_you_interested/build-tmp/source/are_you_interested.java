@@ -45,7 +45,6 @@ public class are_you_interested extends PApplet {
 Neurosky neurosky = new Neurosky();
 String com_port = "/dev/tty.MindWave";
 Logger log = new Logger(neurosky);
-boolean neuroskyOn = false; // a global var that changes to true when we detect the neurosky is on + connected
 Display display;
 
 String session_id;
@@ -57,8 +56,6 @@ public void setup() {
   stroke(255);
   textLeading(-5);
   frameRate(24);
-
-  set_session_id();
    
 	display = new Display();
   neurosky.initialize(this, com_port, false);
@@ -71,6 +68,8 @@ public void draw() {
     fill(display.background_color,122);
     rect(-2,-2,width+2, height+2);
     stroke(display.text_color);
+
+    neurosky.update();
     
     display.update_stimulus();
     log.updateLog(display.getStimulusIndex(), display.getStimulusName());
@@ -94,6 +93,10 @@ public void keyPressed() {
 
   if (key == 'q') {
     quit();
+  }
+
+  if (key == 'k') {
+    display.show_splashscreen = false;
   }
   
 }
@@ -158,6 +161,8 @@ public void quit() {
 class Display {
 	
 	public int stimulusCount = 0;
+
+	boolean show_splashscreen = true;
 	
 	float show_stimulus_constant = 50; //ms per character - how long titles will be displayed
 	float stimulus_display_minimum = 2000; //never show a stimulus for fewer than 2000 ms
@@ -226,41 +231,52 @@ class Display {
         }
 
 	public void update_stimulus() {
-  
-	  if (show_stimulus) {
-	    if (millis() > stimulus_end) {
-      
-	      reddit.advance();
-				stimulusCount++;
-      
-	      // set the length for which this should be displayed
-	      current_display_length = show_stimulus_constant*reddit.currentArticle.title.length();
-	      current_display_length = constrain(current_display_length, stimulus_display_minimum, stimulus_display_maximum);
-      
-	      // set this stimulus's end time
-	      stimulus_end = millis() + current_display_length;
-      
-	      // set the end of the rest period
-	      rest_end = millis() + between_stimulus_pause;
-      
-	      // now hide the stimulus - its time for the rest period
-	      show_stimulus = false;
-	    }
-	  }
-  
-	  else if (!show_stimulus) {
-	    if (millis() > rest_end) {
-      
-	      // show the next stimulus
-	      show_stimulus = true;    
-	    }
-	  }
-		
-    if (show_stimulus) {
-      drawRedditInterface();
-    } else {
-      drawRestInterface();
-    }
+
+		/// show an initial splash at first to make sure setup is working
+		if (show_splashscreen) {
+			drawSplashInterface();			
+		}
+  		
+
+  		// draw interface in which titles are displayed
+  		else {
+
+			if (show_stimulus) {
+				if (millis() > stimulus_end) {
+
+				  reddit.advance();
+				  stimulusCount++;
+
+				  // set the length for which this should be displayed
+				  current_display_length = show_stimulus_constant*reddit.currentArticle.title.length();
+				  current_display_length = constrain(current_display_length, stimulus_display_minimum, stimulus_display_maximum);
+
+				  // set this stimulus's end time
+				  stimulus_end = millis() + current_display_length;
+
+				  // set the end of the rest period
+				  rest_end = millis() + between_stimulus_pause;
+
+				  // now hide the stimulus - its time for the rest period
+				  show_stimulus = false;
+				}
+			}
+
+			else if (!show_stimulus) {
+				if (millis() > rest_end) {
+
+				  // show the next stimulus
+				  show_stimulus = true;    
+				}
+			}
+
+			if (show_stimulus) {
+			drawRedditInterface();
+			} else {
+			drawRestInterface();
+			}
+
+		}
 		
 	}
 
@@ -340,6 +356,30 @@ class Display {
 
 	public void drawRestInterface() {
 	}
+
+	public void drawSplashInterface() {
+		int x = 120;
+	  int y = 60;
+	  int tbox_topbar_padding = 10;
+	  int topbar_height = 50;
+  
+	    int tbox_width = width-x-x-20;
+
+
+	    fill(text_color);
+	    textAlign(LEFT, TOP);
+	    textFont(font,68);
+	    text(getSplashMessage(), 
+	    x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
+
+	}
+
+	public String getSplashMessage() {
+		String attn = Float.toString(neurosky.attn);
+		String med = Float.toString(neurosky.med);
+		String message = "Below I'm showing some readings I get from your Neurosky. Give it a few seconds to initialize.\n\nWhen you see plausible values (1-100), press 'k' to start viewing the stimuli.\n\n";
+		return message + attn + "    " + med;
+	}
 }
 
 
@@ -354,20 +394,28 @@ class Logger {
 	Logger(Neurosky eeg) {
   
 		this.eeg = eeg;
-	
-  	try {
-                     
-                        
-                        //create a log file
-			File file = new File(session_id + "-eeg.csv");
-			file.createNewFile();
-			log = new FileWriter(file);
-		}
-		catch (Exception except) {
-			println("File not found.");
-		}
+
+
+	 	 set_session_id();
 		
-		println("opened new log file!");
+	  	try {
+	            //create a log file in the user's hoem directory
+	            String dir = System.getProperty("user.home") + "/interestminer/"; 
+				File log_dir = new File(dir);
+				//make log directory if it doesn't exist
+				if (!log_dir.exists()) {
+				  log_dir.mkdirs();
+				}
+
+				File file = new File(log_dir + "/" + session_id + "-eeg.csv");
+				file.createNewFile();
+				log = new FileWriter(file);
+			}
+			catch (Exception except) {
+				println("File not found.");
+			}
+			
+			println("opened new log file!");
 	}
 
 	public void updateLog(int stimulusIndex, String stimulusName){
@@ -601,20 +649,8 @@ public class Neurosky {
         attn = ns.data.attention; 
      
       
-      if (!has_initialized) {
-        if (attn == -1.0f)
-          return 1;
-        else {
-          if (attn < 20)  //hack: signal is overall low at beginning of stream 
-            return 1;
-            println("okay! i'm on!");
-            neuroskyOn = true;
-        }
-          has_initialized=true;
-      } else {
         set_attn_pulse();
-      set_med_pulse();
-      }
+        set_med_pulse();
       
       
       

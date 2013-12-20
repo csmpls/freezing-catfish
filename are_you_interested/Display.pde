@@ -3,6 +3,8 @@
 class Display {
 	
 	public int stimulusCount = 0;
+
+	boolean show_splashscreen = true;
 	
 	float show_stimulus_constant = 50; //ms per character - how long titles will be displayed
 	float stimulus_display_minimum = 2000; //never show a stimulus for fewer than 2000 ms
@@ -71,41 +73,52 @@ class Display {
         }
 
 	void update_stimulus() {
-  
-	  if (show_stimulus) {
-	    if (millis() > stimulus_end) {
-      
-	      reddit.advance();
-				stimulusCount++;
-      
-	      // set the length for which this should be displayed
-	      current_display_length = show_stimulus_constant*reddit.currentArticle.title.length();
-	      current_display_length = constrain(current_display_length, stimulus_display_minimum, stimulus_display_maximum);
-      
-	      // set this stimulus's end time
-	      stimulus_end = millis() + current_display_length;
-      
-	      // set the end of the rest period
-	      rest_end = millis() + between_stimulus_pause;
-      
-	      // now hide the stimulus - its time for the rest period
-	      show_stimulus = false;
-	    }
-	  }
-  
-	  else if (!show_stimulus) {
-	    if (millis() > rest_end) {
-      
-	      // show the next stimulus
-	      show_stimulus = true;    
-	    }
-	  }
-		
-    if (show_stimulus) {
-      drawRedditInterface();
-    } else {
-      drawRestInterface();
-    }
+
+		/// show an initial splash at first to make sure setup is working
+		if (show_splashscreen) {
+			drawSplashInterface();			
+		}
+  		
+
+  		// draw interface in which titles are displayed
+  		else {
+
+			if (show_stimulus) {
+				if (millis() > stimulus_end) {
+
+				  reddit.advance();
+				  stimulusCount++;
+
+				  // set the length for which this should be displayed
+				  current_display_length = show_stimulus_constant*reddit.currentArticle.title.length();
+				  current_display_length = constrain(current_display_length, stimulus_display_minimum, stimulus_display_maximum);
+
+				  // set this stimulus's end time
+				  stimulus_end = millis() + current_display_length;
+
+				  // set the end of the rest period
+				  rest_end = millis() + between_stimulus_pause;
+
+				  // now hide the stimulus - its time for the rest period
+				  show_stimulus = false;
+				}
+			}
+
+			else if (!show_stimulus) {
+				if (millis() > rest_end) {
+
+				  // show the next stimulus
+				  show_stimulus = true;    
+				}
+			}
+
+			if (show_stimulus) {
+			drawRedditInterface();
+			} else {
+			drawRestInterface();
+			}
+
+		}
 		
 	}
 
@@ -184,5 +197,29 @@ class Display {
 	}
 
 	void drawRestInterface() {
+	}
+
+	void drawSplashInterface() {
+		int x = 120;
+	  int y = 60;
+	  int tbox_topbar_padding = 10;
+	  int topbar_height = 50;
+  
+	    int tbox_width = width-x-x-20;
+
+
+	    fill(text_color);
+	    textAlign(LEFT, TOP);
+	    textFont(font,68);
+	    text(getSplashMessage(), 
+	    x, y+tbox_topbar_padding+topbar_height, tbox_width, height-10);
+
+	}
+
+	String getSplashMessage() {
+		String attn = Float.toString(neurosky.attn);
+		String med = Float.toString(neurosky.med);
+		String message = "Below I'm showing some readings I get from your Neurosky. Give it a few seconds to initialize.\n\nWhen you see plausible values (1-100), press 'k' to start viewing the stimuli.\n\n";
+		return message + attn + "    " + med;
 	}
 }

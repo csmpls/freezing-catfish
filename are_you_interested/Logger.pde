@@ -11,20 +11,28 @@ class Logger {
 	Logger(Neurosky eeg) {
   
 		this.eeg = eeg;
-	
-  	try {
-                     
-                        
-                        //create a log file
-			File file = new File(session_id + "-eeg.csv");
-			file.createNewFile();
-			log = new FileWriter(file);
-		}
-		catch (Exception except) {
-			println("File not found.");
-		}
+
+
+	 	 set_session_id();
 		
-		println("opened new log file!");
+	  	try {
+	            //create a log file in the user's hoem directory
+	            String dir = System.getProperty("user.home") + "/interestminer/"; 
+				File log_dir = new File(dir);
+				//make log directory if it doesn't exist
+				if (!log_dir.exists()) {
+				  log_dir.mkdirs();
+				}
+
+				File file = new File(log_dir + "/" + session_id + "-eeg.csv");
+				file.createNewFile();
+				log = new FileWriter(file);
+			}
+			catch (Exception except) {
+				println("File not found.");
+			}
+			
+			println("opened new log file!");
 	}
 
 	void updateLog(int stimulusIndex, String stimulusName){

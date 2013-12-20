@@ -60,20 +60,8 @@ public class Neurosky {
         attn = ns.data.attention; 
      
       
-      if (!has_initialized) {
-        if (attn == -1.0)
-          return 1;
-        else {
-          if (attn < 20)  //hack: signal is overall low at beginning of stream 
-            return 1;
-            println("okay! i'm on!");
-            neuroskyOn = true;
-        }
-          has_initialized=true;
-      } else {
         set_attn_pulse();
-      set_med_pulse();
-      }
+        set_med_pulse();
       
       
       

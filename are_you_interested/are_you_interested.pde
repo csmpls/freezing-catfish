@@ -20,7 +20,6 @@ import java.util.Date;
 Neurosky neurosky = new Neurosky();
 String com_port = "/dev/tty.MindWave";
 Logger log = new Logger(neurosky);
-boolean neuroskyOn = false; // a global var that changes to true when we detect the neurosky is on + connected
 Display display;
 
 String session_id;
@@ -32,8 +31,6 @@ void setup() {
   stroke(255);
   textLeading(-5);
   frameRate(24);
-
-  set_session_id();
    
 	display = new Display();
   neurosky.initialize(this, com_port, false);
@@ -46,6 +43,8 @@ void draw() {
     fill(display.background_color,122);
     rect(-2,-2,width+2, height+2);
     stroke(display.text_color);
+
+    neurosky.update();
     
     display.update_stimulus();
     log.updateLog(display.getStimulusIndex(), display.getStimulusName());
@@ -69,6 +68,10 @@ void keyPressed() {
 
   if (key == 'q') {
     quit();
+  }
+
+  if (key == 'k') {
+    display.show_splashscreen = false;
   }
   
 }
