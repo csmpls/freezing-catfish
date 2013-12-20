@@ -358,7 +358,7 @@ class Display {
 	}
 
 	public void drawSplashInterface() {
-		int x = 120;
+	  int x = 120;
 	  int y = 60;
 	  int tbox_topbar_padding = 10;
 	  int topbar_height = 50;
@@ -377,7 +377,7 @@ class Display {
 	public String getSplashMessage() {
 		String attn = Float.toString(neurosky.attn);
 		String med = Float.toString(neurosky.med);
-		String message = "Below I'm showing some readings I get from your Neurosky. Give it a few seconds to initialize.\n\nWhen you see plausible values (1-100), press 'k' to start viewing the stimuli.\n\n";
+		String message = "Hi, welcome to the testing protocol for interest miner. Below I'm showing some readings I get from your Neurosky. Give it a few seconds to initialize.\n\nWhen you seem to be getting a live feed of plausible values (1-100), press 'k' to start viewing the stimuli. (And press 'c' to change colors.)\n\n";
 		return message + attn + "    " + med;
 	}
 }
