@@ -7,7 +7,7 @@ def make_output_row(line):
 	cols = line.split(',')
 
 	# we take the time, eeg readings + story id for our output
-	row.extend(cols[:4])
+	row.extend(cols[:12])
 
 	# figure out if the user reported interested in this story
 	story_index = int(cols[3])
@@ -56,7 +56,8 @@ except:
  	print 'no eeg log found for this id'
 
 # write a new file
-with open('output/' + id + '-cleaned.csv', 'w') as o:
+with open('output/' + id + '-cleaned.csv', 'w') as o:	
+
 	for row in output:
 		for col in row:
 			o.write(str(col) + ',')

@@ -36,7 +36,7 @@ class Logger {
 	}
 
 	void updateLog(int stimulusIndex, String stimulusName){
-  	String[] logline = { getTimestamp(), Float.toString(eeg.attn), Float.toString(eeg.med), Integer.toString(stimulusIndex), stimulusName  };
+  	String[] logline = { getTimestamp(), Float.toString(eeg.attn), Float.toString(eeg.med), Integer.toString(eeg.alpha1), Integer.toString(eeg.alpha2), Integer.toString(eeg.beta1), Integer.toString(eeg.beta2), Integer.toString(eeg.delta), Integer.toString(eeg.gamma1), Integer.toString(eeg.gamma2), Integer.toString(eeg.theta), Integer.toString(stimulusIndex), stimulusName  };
   	try {
     	log.write(get_csv_line(logline));
 			println(get_csv_line(logline));

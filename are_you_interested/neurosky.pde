@@ -35,6 +35,8 @@ public class Neurosky {
   float attn;
   float med;
   
+  int alpha1, alpha2, beta1, beta2, delta, gamma1, gamma2, theta;
+  
   float attn_pulse;
   float med_pulse;
   
@@ -58,6 +60,15 @@ public class Neurosky {
     try {
         med = ns.data.meditation; 
         attn = ns.data.attention; 
+        
+        alpha1 = ns.data.alpha1;
+        alpha2 = ns.data.alpha2;
+        beta1 = ns.data.beta1;
+        beta2 = ns.data.beta2;
+        delta = ns.data.delta;
+        gamma1 = ns.data.gamma1;
+        gamma2 = ns.data.gamma2;
+        theta = ns.data.theta;
      
       
         set_attn_pulse();
