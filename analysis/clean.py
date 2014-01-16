@@ -21,46 +21,50 @@ def make_output_row(line):
 	return row	
 
 
+def build_clean_log(id):
+
+	# a list of the story indicies in which the user was interested 
+	was_interested = []
+
+	# read groundtruth file, 
+	# assemble indicies in which the user was interested
+	try:
+		with open('groundtruth/' + id + '-groundtruth.txt', 'r') as g:
+			lines = g.readlines()
+			for line in lines:
+				was_interested.append(int(line.strip('\n')))
+			print was_interested 
+	except:
+		print 'no groundtruth log found for this id.'
 
 
-id = '1389903621'
+	# our cleaned output file will be a 2D array
+	output = []
 
-# a list of the story indicies in which the user was interested 
-was_interested = []
+	# open the eeg log
+	try:
+		with open('eeg/' + id + '-eeg.csv', 'r') as e:
 
-# read groundtruth file, 
-# assemble indicies in which the user was interested
-try:
-	with open('groundtruth/' + id + '-groundtruth.txt', 'r') as g:
-		lines = g.readlines()
-		for line in lines:
-			was_interested.append(int(line.strip('\n')))
-		print was_interested 
-except:
-	print 'no groundtruth log found for this id.'
+		 	lines = e.readlines()
+
+		 	# build a 2d array of cleaned rows
+		 	output = [make_output_row(line) for line in lines]
+
+	except:
+	 	print 'no eeg log found for this id'
+
+	# write a new file
+	with open('output/' + id + '-cleaned.csv', 'w') as o:	
+
+		for row in output:
+			for col in row:
+				o.write(str(col) + ',')
+			o.write('\n')
+
+	print 'all done (' + id + ')'
 
 
-# our cleaned output file will be a 2D array
-output = []
 
-# open the eeg log
-try:
-	with open('eeg/' + id + '-eeg.csv', 'r') as e:
 
-	 	lines = e.readlines()
+build_clean_log('1389903621')
 
-	 	# build a 2d array of cleaned rows
-	 	output = [make_output_row(line) for line in lines]
-
-except:
- 	print 'no eeg log found for this id'
-
-# write a new file
-with open('output/' + id + '-cleaned.csv', 'w') as o:	
-
-	for row in output:
-		for col in row:
-			o.write(str(col) + ',')
-		o.write('\n')
-
-print 'all done (' + id + ')'
